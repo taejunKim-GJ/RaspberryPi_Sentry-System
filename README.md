@@ -62,15 +62,15 @@ if (read(fd, buffer, 1) > 0) {
 
 ### ① UART-SPI 핀 간섭 및 전압 노이즈로 인한 시스템 통신 단절
 - **Symptom:** 블루투스(UART) 활성화 시 SPI 핀 간섭으로 도트매트릭스 작동이 멈춤. 또한, 서보 모터 구동 시 전압 노이즈가 발생하여 블루투스 페어링이 간헐적으로 해제됨.
-- **Root Cause:** 라즈베리파이의 기본 핀 기능 중복 설정 및 전원부(GND) 단일 회로 공유로 인한 모터의 과도한 돌입 전류(Inrush Current) 전압 강하 현상.
-- **Resolution:** 하드웨어 핀 매핑 재배치로 통신 라인을 분리하고, 모터 구동용 외부 어댑터 전원을 직결하여 전원부를 분리함. 추가로 도트매트릭스의 전류 소모를 줄이기 위해 소프트웨어적으로 밝기(Brightness) 계수를 하향 조정하여 통신 신뢰성 확보.
+- **Root Cause:** 라즈베리파이의 기본 핀 기능 중복 설정 및 전원부 단일 회로 공유로 인한 모터의 과도한 돌입 전류 전압 강하 현상.
+- **Resolution:** 하드웨어 핀 매핑 재배치로 통신 라인을 분리하고, 모터 구동용 외부 어댑터 전원을 직결하여 전원부를 분리함. 추가로 도트매트릭스의 전류 소모를 줄이기 위해 소프트웨어적으로 밝기 계수를 하향 조정하여 통신 신뢰성 확보.
 
 <br>
 
 ### ② PIR 센서 출력 불안정(Flickering) 및 감지 오류
 - **Symptom:** 객체가 범위 내에 머물러 있음에도 PIR 센서 데이터 신호가 HIGH/LOW를 빠르게 반복하는 플리커링 발생.
 - **Root Cause:** 디지털 PIR 센서 모듈(`HC-SR501`) 고유의 하드웨어 감도 한계 및 갱신 주기 불일치.
-- **Resolution:** 단발성 감지 신호에 바로 상태를 변경하지 않고, 마지막 HIGH 감지 이후 10초간 상태를 유지시키는 **소프트웨어 래칭(Latching) 타이머 로직**을 구현하여 감지 안정성을 대폭 향상함.
+- **Resolution:** 단발성 감지 신호에 바로 상태를 변경하지 않고, 마지막 HIGH 감지 이후 10초간 상태를 유지시키는 **소프트웨어 래칭(Latching) 타이머 로직**을 구현하여 감지 안정성을 대폭 향상.
 
 <br>
 
@@ -97,15 +97,22 @@ sudo ./sentry_system
 ```
 *(※ `/dev/spidev0.0` 및 GPIO 인터페이스 접근을 위해 `sudo` 권한이 필요합니다.)*
 
+> **참고:** 만약 파이썬 카메라를 따로 디버깅하고 싶다면, `main.c`의 `start_python_detector()`를 주석 처리한 후 아래 명령어로 수동 실행하세요.
+> - `sudo python3 python/py_detector.py` (경로 변경됨: python/ 폴더 포함)	
+
+
 <br>
 
 ## 6. 시연 영상
 [![Sentry System 동작 시연 영상](https://img.youtube.com/vi/PyCjQCQlico/hqdefault.jpg)](https://www.youtube.com/watch?v=PyCjQCQlico)- 
 
 **단계별 동작 시나리오:**
+<img width="600" alt="Scenario 1" src="./docs/mode_1-2-3.png" />
+<img width="600" alt="Scenario 2" src="./docs/mode_0.png" />
+
   1. **SAFE (평상시):** 대기 상태로 도트매트릭스에 스마일 UI 출력
   2. **WARN (침입 감지):** Pi Camera(영상 변화)와 PIR 센서 이중 포착 시 1차 경고음 및 주의 아이콘 출력
-  3. **DANGER (근접 위협):** 초음파 센서 50cm 이내 접근 시 사이렌 송출, 해골 아이콘 점멸 및 증거 사진 자동 캡처 (`./docs/danger_capture.jpg`)
+  3. **DANGER (근접 위협):** 초음파 센서 50cm 이내 접근 시 사이렌 송출, 해골 아이콘 점멸 및 증거 사진 자동 [캡처](./docs/danger_capture.jpg)
   4. **REMOTE (원격 해제):** 블루투스 터미널 비밀번호 인증 시 프라이버시 모드 전환 및 도어락 개방
 
 ### 한계점 및 향후 개선 과제

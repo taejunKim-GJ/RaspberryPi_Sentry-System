@@ -17,8 +17,8 @@
 ## 2. 시스템 아키텍처
 
 ### 하드웨어 및 통신 구조도
-<img width="500" alt="System Architecture" src="./docs/system_architecture.png" />
-<img width="500" alt="System Circuit" src="./docs/system_circuit.jpg" />
+<img width="600" alt="System Architecture" src="./docs/system_architecture.png" />
+<img width="600" alt="System Circuit" src="./docs/system_circuit.jpg" />
 
 ### 주요 하드웨어 및 인터페이스
 - **제어 보드:** Raspberry Pi 5
@@ -157,6 +157,7 @@ sudo ./sentry_system
 [![Sentry System 동작 시연 영상](https://img.youtube.com/vi/PyCjQCQlico/hqdefault.jpg)](https://www.youtube.com/watch?v=PyCjQCQlico)- 
 
 **단계별 동작 시나리오:**
+
 <img width="600" alt="Scenario 1" src="./docs/mode_1-2-3.png" />
 <img width="600" alt="Scenario 2" src="./docs/mode_0.png" />
 

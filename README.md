@@ -89,14 +89,14 @@ if (read(fd, buffer, 1) > 0) {
 - **Root Cause:** 디지털 PIR 센서 모듈 고유의 하드웨어 감도 한계 및 갱신 주기 불일치.
 - **Resolution:** 단발성 감지 신호에 바로 상태를 변경하지 않고, 마지막 HIGH 감지 이후 10초간 상태를 유지시키는 **소프트웨어 래칭(Latching) 타이머 로직**을 구현하여 감지 안정성을 대폭 향상.
 
-[AS-IS: 기존 코드] - 단순 센서값 반환 (플리커링 노이즈에 취약)
+**[AS-IS: 기존 코드]** - 단순 센서값 반환 (플리커링 노이즈에 취약)
 ```c
   int check_pir() {
       return digitalRead(PIR_PIN);
   }
 ```
 
-[TO-BE: 개선된 래칭(Latching) 로직] - 타이머 기반 상태 유지
+**[TO-BE: 개선된 래칭(Latching) 로직]** - 타이머 기반 상태 유지
 ```c
 int check_pir() {
     static unsigned long last_pir_time = 0; // 마지막 감지 시간
@@ -154,7 +154,7 @@ sudo ./sentry_system
 <br>
 
 ## 6. 시연 영상
-[![Sentry System 동작 시연 영상](https://img.youtube.com/vi/PyCjQCQlico/hqdefault.jpg)](https://www.youtube.com/watch?v=PyCjQCQlico)- 
+[![Sentry System 동작 시연 영상](https://img.youtube.com/vi/PyCjQCQlico/hqdefault.jpg)](https://www.youtube.com/watch?v=PyCjQCQlico) 
 
 **단계별 동작 시나리오:**
 
@@ -165,6 +165,8 @@ sudo ./sentry_system
   2. **WARN (침입 감지):** Pi Camera(영상 변화)와 PIR 센서 이중 포착 시 1차 경고음 및 주의 아이콘 출력
   3. **DANGER (근접 위협):** 초음파 센서 50cm 이내 접근 시 사이렌 송출, 해골 아이콘 점멸 및 증거 사진 자동 [캡처](./docs/danger_capture.jpg)
   4. **REMOTE (원격 해제):** 블루투스 터미널 비밀번호 인증 시 프라이버시 모드 전환 및 도어락 개방
+
+<br>
 
 ### 한계점 및 향후 개선 과제
 - **현재 한계점:** 움직임 감지 기반이므로 정지 객체에 대해 SAFE 모드로 전환되는 제약, 캡처 이미지의 로컬 스토리지 저장 제약.

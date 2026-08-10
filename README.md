@@ -21,10 +21,11 @@
 <img width="500" alt="System Circuit" src="./docs/system_circuit.jpg" />
 
 ### 주요 하드웨어 및 인터페이스
-- **제어 보드:** Raspberry Pi 5 (Raspberry Pi OS)
-- **센서:** Pi Camera (OpenCV 영상 처리), PIR Sensor (동작 감지), Ultrasonic Sensor (거리 측정)
+- **제어 보드:** Raspberry Pi 5
+- **파워:** External Adapter (5V 2A)
+- **센서:** Pi Camera (OpenCV 영상 처리), PIR Sensor (적외선 동작 감지), Ultrasonic Sensor (거리 측정)
 - **액추에이터:** Dot Matrix 8×8 2개 (상태 UI 출력), Active Buzzer (경보음), Servo Motor (잠금 장치)
-- **통신:** UART (Bluetooth), SPI (Dot Matrix), PWM/GPIO (Servo & Sensors), Socket (Wi-Fi)
+- **통신:** UART (Bluetooth), SPI (Dot Matrix), Wi-Fi (TCP/IP Socket 통신)
 
 <br>
 
@@ -44,7 +45,7 @@ pthread_create(&th_wifi, NULL, wifiServerThreadFunc, NULL);
 
 ### 2) IPC (Named Pipe) 및 Mutex 동기화
 - **IPC (FIFO):** 영상 처리에 최적화된 Python과 하드웨어 정밀 제어에 최적화된 C 언어 간 Named Pipe(`/tmp/opencv_fifo`)를 구축하여 이종 언어 간 실시간 데이터를 연동했습니다.
-- **Mutex:** 여러 쓰레드가 전역 변수인 시스템 상태(`current_mode`) 및 인증 정보에 동시 접근 시 발생하는 경쟁 상태(Race Condition)를 방지하기 위해 `mode_mutex`와 `auth_mutex`를 적용했습니다.
+- **Mutex:** 여러 쓰레드가 전역 변수인 시스템 상태(`current_mode`) 및 인증 정보에 동시 접근 시 발생하는 경쟁 상태를 방지하기 위해 `mode_mutex`와 `auth_mutex`를 적용했습니다.
 
 ```c
 // [src/sensors.c] IPC 파이프 수신 시 Mutex를 통한 공유 자원 보호
@@ -60,17 +61,66 @@ if (read(fd, buffer, 1) > 0) {
 
 ## 4. 트러블슈팅
 
-### ① UART-SPI 핀 간섭 및 전압 노이즈로 인한 시스템 통신 단절
-- **Symptom:** 블루투스(UART) 활성화 시 SPI 핀 간섭으로 도트매트릭스 작동이 멈춤. 또한, 서보 모터 구동 시 전압 노이즈가 발생하여 블루투스 페어링이 간헐적으로 해제됨.
-- **Root Cause:** 라즈베리파이의 기본 핀 기능 중복 설정 및 전원부 단일 회로 공유로 인한 모터의 과도한 돌입 전류 전압 강하 현상.
-- **Resolution:** 하드웨어 핀 매핑 재배치로 통신 라인을 분리하고, 모터 구동용 외부 어댑터 전원을 직결하여 전원부를 분리함. 추가로 도트매트릭스의 전류 소모를 줄이기 위해 소프트웨어적으로 밝기 계수를 하향 조정하여 통신 신뢰성 확보.
+### 1) UART 모듈 활성화에 따른 SPI 핀 점유 및 도트매트릭스 작동 불능
+- **Symptom:** 블루투스 통신을 위해 `uart3` 모듈을 활성화하면, 도트매트릭스를 제어하는 SPI 인터페이스가 작동 불능 상태에 빠짐 (`/dev/spidev0.0` 디바이스 노드 소실).
+- **Root Cause:** 라즈베리파이 4에서 5로 하드웨어 세대가 변경되면서 `uart3`의 TX, RX 핀 맵이 변경됨. 이에 따라 `dtoverlay=uart3` (GPIO 4, 5)를 활성화할 경우, 시스템이 SPI 핀(GPIO 8, 9)까지 강제로 점유해버리는 핀 충돌 현상이 발생.
+- **Resolution:** 센서와 통신 모듈 간의 전면적인 하드웨어 핀 재배치 수행. 기존 초음파 센서가 사용하던 핀(GPIO 14, 15)을 일반 GPIO 4, 5번으로 이동시키고, 블루투스 모듈을 표준 UART 핀(GPIO 14, 15)으로 재할당함으로써 SPI 핀 간섭 현상을 완벽히 해결.
 
 <br>
 
-### ② PIR 센서 출력 불안정(Flickering) 및 감지 오류
+### 2) 모터 전류에 따른 전압 강하 및 블루투스 페어링 해제
+- **Symptom:** 서보 모터가 구동하여 도어락을 제어할 때마다 시스템에 전압 노이즈가 발생하여 블루투스 연결이 간헐적으로 끊어짐.
+- **Root Cause:** 라즈베리파이의 단일 전원 회로를 모든 센서와 모터가 공유함에 따라, 모터 구동 시 발생하는 과도한 전류가 전체 시스템의 순간적인 전압 강하를 유발함.
+- **Resolution:** 모터 구동용으로 외부 전원 어댑터를 직결하여 전원 회로를 메인 보드와 분리. 추가로 순간 전력 소모의 피크를 낮추기 위해, 소프트웨어적으로 도트매트릭스의 밝기 계수를 하향 조정하여 시스템 전원 안정성 및 통신 신뢰성을 완벽히 확보.
+
+```c
+  // MAX7219 초기화
+  void initMax7219() {
+      ...
+      write_MAX7219(REG_INTENSITY, 0x01, 0x01);   // 도트매트릭스의 밝기를 0x09 -> 0x01 로 최소한으로 낮춤
+      ...
+  }
+```
+
+<br>
+
+### 3) PIR 센서 출력 불안정(Flickering) 및 감지 오류
 - **Symptom:** 객체가 범위 내에 머물러 있음에도 PIR 센서 데이터 신호가 HIGH/LOW를 빠르게 반복하는 플리커링 발생.
-- **Root Cause:** 디지털 PIR 센서 모듈(`HC-SR501`) 고유의 하드웨어 감도 한계 및 갱신 주기 불일치.
+- **Root Cause:** 디지털 PIR 센서 모듈 고유의 하드웨어 감도 한계 및 갱신 주기 불일치.
 - **Resolution:** 단발성 감지 신호에 바로 상태를 변경하지 않고, 마지막 HIGH 감지 이후 10초간 상태를 유지시키는 **소프트웨어 래칭(Latching) 타이머 로직**을 구현하여 감지 안정성을 대폭 향상.
+
+[AS-IS: 기존 코드] - 단순 센서값 반환 (플리커링 노이즈에 취약)
+```c
+  int check_pir() {
+      return digitalRead(PIR_PIN);
+  }
+```
+
+[TO-BE: 개선된 래칭(Latching) 로직] - 타이머 기반 상태 유지
+```c
+int check_pir() {
+    static unsigned long last_pir_time = 0; // 마지막 감지 시간
+    const unsigned long PIR_HOLD_TIME = 10000; // 유지 시간: 10초
+
+    // 1. 실제 센서값 읽기
+    int current_state = digitalRead(PIR_PIN);
+
+    // 2. 움직임이 감지되면(HIGH), 타이머 갱신
+    if (current_state == 1) {
+        last_pir_time = millis(); // 현재 시간(ms) 저장
+        return 1; // 감지됨
+    }
+
+    // 3. 지금은 LOW지만, 마지막 감지로부터 10초가 안 지났다면?
+    if ((millis() - last_pir_time) < PIR_HOLD_TIME) {
+        // 아직 사람이 있다고 "거짓말"을 함 (유지 상태)
+        return 1;
+    }
+
+    // 4. 10초도 지났고 센서도 LOW라면 -> 진짜 없음
+    return 0;
+}
+```
 
 <br>
 

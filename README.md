@@ -1,5 +1,5 @@
 # RaspberryPi_Sentry-System
-3학년 2학기 임베디드 시스템 Team Project | 라즈베리파이 5 기반 지능형 보안 시스템
+3학년 2학기 임베디드시스템 Team Project | 라즈베리파이 5 기반 지능형 보안 시스템
 
 <br>
 
@@ -16,16 +16,44 @@
 
 ## 2. 시스템 아키텍처
 
-### 하드웨어 및 통신 구조도
+### 하드웨어 및 통신 구조
 <img width="600" alt="System Architecture" src="./docs/system_architecture.png" />
 <img width="600" alt="System Circuit" src="./docs/system_circuit.jpg" />
 
-### 주요 하드웨어 및 인터페이스
 - **제어 보드:** Raspberry Pi 5
 - **파워:** External Adapter (5V 2A)
 - **센서:** Pi Camera (OpenCV 영상 처리), PIR Sensor (적외선 동작 감지), Ultrasonic Sensor (거리 측정)
 - **액추에이터:** Dot Matrix 8×8 2개 (상태 UI 출력), Active Buzzer (경보음), Servo Motor (잠금 장치)
 - **통신:** UART (Bluetooth), SPI (Dot Matrix), Wi-Fi (TCP/IP Socket 통신)
+
+<br>
+
+### 파일 구조
+본 프로젝트는 시스템의 유지보수성과 확장성을 높이기 위해, C 언어 기반의 멀티쓰레드 하드웨어 제어부(`src/`, `include/`)와 Python 기반의 비전 처리부(`python/`)로 역할을 명확히 분리한 구조를 채택하였습니다.
+
+```text
+├── Makefile                 # C 프로그램 컴파일 및 빌드 자동화 스크립트
+│
+├── include/                 # [Public API] 모듈 간 참조를 위한 헤더 파일
+│   ├── actuators.h          # 도트매트릭스 및 부저 제어 인터페이스
+│   ├── bluetooth.h          # UART 블루투스 통신 인터페이스
+│   ├── config.h             # 시스템 전역 핀 맵 및 공통 매크로 설정
+│   ├── motor.h              # 서보 모터(도어락) 제어 인터페이스
+│   ├── network.h            # Wi-Fi 소켓 통신 인터페이스
+│   └── sensors.h            # 초음파 및 PIR 센서 제어 인터페이스
+│
+├── src/                     # [Implementation] C 로직 구현부
+│   ├── main.c               # 메인 제어 루프 및 5-Thread 병렬 처리 관리
+│   ├── actuators.c          # 시각/청각 알림 하드웨어 구동 로직
+│   ├── bluetooth.c          # 안드로이드 터미널 연동 및 인증 로직
+│   ├── motor.c              # PWM 기반 서보 모터 각도 제어 로직
+│   ├── network.c            # 외부 서버로의 침입 상태 전송 로직
+│   └── sensors.c            # 센서 데이터 수집 및 IPC(Named Pipe) 수신 로직
+│
+└── python/                  # [Vision Processing] 파이썬 보조 시스템
+    ├── py_detector.py       # OpenCV 기반 이미지 변화 감지 알고리즘 및 IPC 전송
+    └── requirements.txt     # Python 가상환경 패키지 의존성 명세
+```
 
 <br>
 

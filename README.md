@@ -17,14 +17,18 @@
 ## 2. 시스템 아키텍처
 
 ### 하드웨어 및 통신 구조
-<img width="600" alt="System Architecture" src="./docs/system_architecture.png" />
-<img width="600" alt="System Circuit" src="./docs/system_circuit.jpg" />
+<img width="500" alt="System Architecture" src="./docs/system_architecture.png" /> <img width="500" alt="System Circuit" src="./docs/system_circuit.jpg" />
 
 - **제어 보드:** Raspberry Pi 5
 - **파워:** External Adapter (5V 2A)
 - **센서:** Pi Camera (OpenCV 영상 처리), PIR Sensor (적외선 동작 감지), Ultrasonic Sensor (거리 측정)
 - **액추에이터:** Dot Matrix 8×8 2개 (상태 UI 출력), Active Buzzer (경보음), Servo Motor (잠금 장치)
 - **통신:** UART (Bluetooth), SPI (Dot Matrix), Wi-Fi (TCP/IP Socket 통신)
+
+<br>
+
+### 실제 하드웨어 구현 (외부/내부)
+<img width="500" alt="System External" src="./docs/system_external.jpg" /> <img width="400" alt="System Internal" src="./docs/system_internal.jpg" />
 
 <br>
 
@@ -186,12 +190,12 @@ sudo ./sentry_system
 
 **단계별 동작 시나리오:**
 
-<img width="600" alt="Scenario 1" src="./docs/mode_1-2-3.png" />
-<img width="600" alt="Scenario 2" src="./docs/mode_0.png" />
+<img width="600" alt="Scenario 1" src="./docs/scenario/mode_1-2-3.png" />
+<img width="600" alt="Scenario 2" src="./docs/scenario/mode_0.png" />
 
   1. **SAFE (평상시):** 대기 상태로 도트매트릭스에 스마일 UI 출력
   2. **WARN (침입 감지):** Pi Camera(영상 변화)와 PIR 센서 이중 포착 시 1차 경고음 및 주의 아이콘 출력
-  3. **DANGER (근접 위협):** 초음파 센서 50cm 이내 접근 시 사이렌 송출, 해골 아이콘 점멸 및 증거 사진 자동 [캡처](./docs/danger_capture.jpg)
+  3. **DANGER (근접 위협):** 초음파 센서 50cm 이내 접근 시 사이렌 송출, 해골 아이콘 점멸 및 증거 사진 자동 [캡처](./docs/scenario/danger_capture.jpg)
   4. **REMOTE (원격 해제):** 블루투스 터미널 비밀번호 인증 시 프라이버시 모드 전환 및 도어락 개방
 
 <br>

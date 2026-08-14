@@ -17,7 +17,7 @@
 ## 2. 시스템 아키텍처
 
 ### 하드웨어 및 통신 구조
-<img width="500" alt="System Architecture" src="./docs/system_architecture.png" /> <img width="500" alt="System Circuit" src="./docs/system_circuit.jpg" />
+<img width="500" alt="System Architecture" src="./docs/system_architecture.png" />
 
 - **제어 보드:** Raspberry Pi 5
 - **파워:** External Adapter (5V 2A)
@@ -210,4 +210,8 @@ sudo ./sentry_system
 - **강승우:** Wi-Fi 및 Bluetooth 네트워크 통신 제어
 - **강현묵:** Pi Camera 인터페이스 및 OpenCV 영상 처리 알고리즘 구현
 - **김태준:** **Dot Matrix, Active Buzzer, Ultrasonic, PIR 센서 하드웨어 제어 및 S/W 구동 모듈 구현**
+  <details>
+    <summary>🛠️ 담당 파트 하드웨어 회로도 확인하기 (Click)</summary>
+    <img width="500" alt="My Circuit" src="./docs/system_circuit.jpg" />
+  </details>
 - **손예슬:** 서보 모터 제어 및 하드웨어 기구 설계

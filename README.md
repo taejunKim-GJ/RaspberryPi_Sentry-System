@@ -16,11 +16,11 @@
 
 ## 2. 시스템 아키텍처
 
-### 하드웨어 및 통신 구조
+### 하드웨어/통신 구조
 <img width="500" alt="System Architecture" src="./docs/system_architecture.png" />
 
 - **제어 보드:** Raspberry Pi 5
-- **파워:** External Adapter (5V 2A)
+- **전력:** External Adapter (5V 2A)
 - **센서:** Pi Camera (OpenCV 영상 처리), PIR Sensor (적외선 동작 감지), Ultrasonic Sensor (거리 측정)
 - **액추에이터:** Dot Matrix 8×8 2개 (상태 UI 출력), Active Buzzer (경보음), Servo Motor (잠금 장치)
 - **통신:** UART (Bluetooth), SPI (Dot Matrix), Wi-Fi (TCP/IP Socket 통신)
@@ -28,7 +28,7 @@
 <br>
 
 ### 실제 하드웨어 구현 (외부/내부)
-<img width="500" alt="System External" src="./docs/system_external.jpg" /> <img width="400" alt="System Internal" src="./docs/system_internal.jpg" />
+<img width="500" alt="System External" src="./docs/system_external.jpg" /><img width="400" alt="System Internal" src="./docs/system_internal.jpg" />
 
 <br>
 
@@ -156,7 +156,7 @@ int check_pir() {
 
 <br>
 
-## 5. 빌드 및 실행 가이드
+## 5. 실행 방법
 
 ### 1) 프로젝트 빌드
 프로젝트 루트 디렉토리에서 아래 명령어를 통해 C 애플리케이션을 빌드합니다.

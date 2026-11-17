@@ -193,7 +193,11 @@ sudo ./sentry_system
 <br>
 
 ## 6. 시연 영상
+**👇 클릭해서 작동 시연 영상 보기 (YouTube)**
+
 [![Sentry System 동작 시연 영상](https://img.youtube.com/vi/PyCjQCQlico/hqdefault.jpg)](https://www.youtube.com/watch?v=PyCjQCQlico) 
+
+<br>
 
 **단계별 동작 시나리오:**
 
@@ -216,9 +220,7 @@ sudo ./sentry_system
 ## 7. 팀원 및 역할
 - **강승우:** Wi-Fi 및 Bluetooth 네트워크 통신 제어
 - **강현묵:** Pi Camera 인터페이스 및 OpenCV 영상 처리 알고리즘 구현
-- **김태준:** **Dot Matrix, Active Buzzer, Ultrasonic, PIR 센서 하드웨어 제어 및 S/W 구동 모듈 구현**
-  <details>
-    <summary>🛠️ 담당 파트 하드웨어 회로도 확인하기 (Click)</summary>
-    <img width="500" alt="My Circuit" src="./docs/system_circuit.jpg" />
-  </details>
 - **손예슬:** Servo Motor 제어 및 하드웨어 기구 설계
+- **김태준:** **Dot Matrix, Active Buzzer, Ultrasonic, PIR 센서 제어 및 모듈 통합 검증**
+  <img width="500" alt="My Circuit" src="./docs/system_circuit.jpg" />
+  (🛠️ 본인 담당 파트 하드웨어 회로도)
